@@ -104,7 +104,6 @@ class ESCheckIndicesSizes < Sensu::Plugin::Check::CLI
     curr_date = DateTime.now
 
     indices_to_delete = []
-    
     # We don't delete the current day, as it is most likely being used.
     while total_bytes_deleted < total_bytes_to_delete && starting_date < curr_date
       same_day_indices = indices_with_sizes.values.map do |pattern|
