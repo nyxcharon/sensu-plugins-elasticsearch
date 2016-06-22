@@ -104,18 +104,18 @@ class ESCheckIndicesSizes < Sensu::Plugin::Check::CLI
     curr_date = DateTime.now
 
     indices_to_delete = []
-
+    
     # We don't delete the current day, as it is most likely being used.
     while total_bytes_deleted < total_bytes_to_delete && starting_date < curr_date
       same_day_indices = indices_with_sizes.values.map do |pattern|
         pattern.select do |index|
-          index['date'] == starting_date
+          index[:date] == starting_date
         end
       end.flatten
       same_day_indices.each do |index|
         if total_bytes_deleted < total_bytes_to_delete
-          indices_to_delete.push(index['index'])
-          total_bytes_deleted += index['size']
+          indices_to_delete.push(index[:index])
+          total_bytes_deleted += index[:size]
         end
       end
       starting_date += 1
@@ -174,10 +174,8 @@ class ESCheckIndicesSizes < Sensu::Plugin::Check::CLI
     end
 
     indices_with_sizes = build_indices_with_sizes
-
-    oldest = indices_with_sizes.values.flatten.map { |index| index['date'] }.min
+    oldest = indices_with_sizes.values.flatten.map { |index| index[:date] }.min
     indices_to_delete = get_indices_to_delete(oldest, total_bytes_to_delete, indices_with_sizes)
-
     critical "Not enough space, #{total_bytes_to_delete} bytes need to be deleted. Used space in bytes: " \
       "#{used_in_bytes}, Total in bytes: #{total_in_bytes}. Indices to delete: " \
       "#{indices_to_delete.sort.map { |i| "INDEX[#{i}]" }.join(', ')}"
